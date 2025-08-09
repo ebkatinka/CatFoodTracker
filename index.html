@@ -1,0 +1,1292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cat Food Tracker - T & P</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #8B4B87 0%, #D4A574 50%, #4A7C59 100%);
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                radial-gradient(circle at 20% 80%, rgba(212, 165, 116, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(139, 75, 135, 0.15) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            position: relative;
+            z-index: 1;
+        }
+
+        .container::after {
+            content: '🐱';
+            position: absolute;
+            bottom: 20px;
+            right: 30px;
+            font-size: 4em;
+            opacity: 0.1;
+            z-index: 10;
+            animation: gentleFloat 10s ease-in-out infinite;
+        }
+
+        @keyframes gentleFloat {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-15px) rotate(2deg); }
+        }
+
+        .header {
+            background: linear-gradient(135deg, rgba(74, 124, 89, 0.9), rgba(139, 75, 135, 0.9));
+            color: white;
+            text-align: center;
+            padding: 40px 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '🐾';
+            position: absolute;
+            font-size: 4em;
+            opacity: 0.1;
+            top: 20px;
+            left: 30px;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .header::after {
+            content: '🐾';
+            position: absolute;
+            font-size: 3em;
+            opacity: 0.1;
+            bottom: 20px;
+            right: 30px;
+            animation: float 6s ease-in-out infinite reverse;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(10deg); }
+        }
+
+        .header h1 {
+            font-size: 2.8em;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            position: relative;
+            z-index: 2;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+            position: relative;
+            z-index: 2;
+        }
+
+        .login-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 500px;
+            padding: 40px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+            position: relative;
+        }
+
+        .login-screen::before {
+            content: '🐱';
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 5em;
+            opacity: 0.1;
+            z-index: 0;
+            animation: float 8s ease-in-out infinite;
+        }
+
+        .login-screen::after {
+            content: '😸';
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            font-size: 3em;
+            opacity: 0.15;
+            z-index: 0;
+            animation: float 8s ease-in-out infinite reverse;
+        }
+
+        .login-box {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 50px 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            position: relative;
+            z-index: 1;
+            transition: transform 0.3s ease;
+        }
+
+        .login-box:hover {
+            transform: translateY(-5px);
+        }
+
+        .login-box h2 {
+            color: #8B4B87;
+            margin-bottom: 30px;
+            font-size: 1.8em;
+            font-weight: 600;
+        }
+
+        .main-content {
+            display: none;
+            padding: 30px;
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid rgba(238, 238, 238, 0.5);
+            margin-bottom: 30px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 15px 15px 0 0;
+            overflow: hidden;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 20px 15px;
+            text-align: center;
+            background: rgba(248, 249, 250, 0.5);
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            position: relative;
+            backdrop-filter: blur(5px);
+        }
+
+        .tab::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(135deg, #8B4B87, #D4A574);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .tab:hover {
+            background: rgba(255, 255, 255, 0.7);
+            transform: translateY(-2px);
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #8B4B87, #D4A574);
+            color: white;
+        }
+
+        .tab.active::before {
+            transform: scaleX(1);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .form-section {
+            background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(248,249,250,0.9) 100%);
+            padding: 35px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            border-left: 5px solid #8B4B87;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+            backdrop-filter: blur(5px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .form-section::before {
+            content: '🍽️';
+            position: absolute;
+            font-size: 2em;
+            opacity: 0.1;
+            top: 20px;
+            right: 20px;
+        }
+
+        .form-section h3 {
+            color: #8B4B87;
+            margin-bottom: 25px;
+            font-size: 1.5em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid rgba(221, 221, 221, 0.5);
+            border-radius: 12px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(5px);
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #8B4B87;
+            box-shadow: 0 0 0 4px rgba(139, 75, 135, 0.15);
+            background: rgba(255, 255, 255, 0.95);
+            transform: translateY(-2px);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .rating-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .rating-btn {
+            padding: 12px 20px;
+            border: 2px solid rgba(221, 221, 221, 0.5);
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            backdrop-filter: blur(5px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .rating-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: linear-gradient(135deg, #8B4B87, #D4A574);
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            transform: translate(-50%, -50%);
+            z-index: -1;
+        }
+
+        .rating-btn:hover::before {
+            width: 200%;
+            height: 200%;
+        }
+
+        .rating-btn:hover {
+            color: white;
+            border-color: #8B4B87;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(139, 75, 135, 0.3);
+        }
+
+        .rating-btn.selected {
+            background: linear-gradient(135deg, #8B4B87, #D4A574);
+            color: white;
+            border-color: #8B4B87;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(139, 75, 135, 0.4);
+        }
+
+        /* Cat selection bubble styles */
+        .cat-selection {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .cat-btn {
+            padding: 15px 25px;
+            border: 3px solid rgba(221, 221, 221, 0.5);
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 35px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            font-size: 16px;
+            backdrop-filter: blur(5px);
+            position: relative;
+            overflow: hidden;
+            min-width: 120px;
+            text-align: center;
+        }
+
+        .cat-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: linear-gradient(135deg, #8B4B87, #D4A574);
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            transform: translate(-50%, -50%);
+            z-index: -1;
+        }
+
+        .cat-btn:hover::before {
+            width: 200%;
+            height: 200%;
+        }
+
+        .cat-btn:hover {
+            color: white;
+            border-color: #8B4B87;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(139, 75, 135, 0.3);
+        }
+
+        .cat-btn.selected {
+            background: linear-gradient(135deg, #8B4B87, #D4A574);
+            color: white;
+            border-color: #8B4B87;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(139, 75, 135, 0.4);
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, #8B4B87, #D4A574);
+            color: white;
+            padding: 18px 35px;
+            border: none;
+            border-radius: 30px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .submit-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .submit-btn:hover::before {
+            left: 100%;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(139, 75, 135, 0.4);
+        }
+
+        .submit-btn:active {
+            transform: translateY(-1px);
+        }
+
+        .entries-grid {
+            display: grid;
+            gap: 20px;
+        }
+
+        .entry-card {
+            background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,249,250,0.95) 100%);
+            border: 2px solid rgba(238, 238, 238, 0.3);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .entry-card::before {
+            content: '🐱';
+            position: absolute;
+            font-size: 3em;
+            opacity: 0.05;
+            top: 15px;
+            right: 15px;
+        }
+
+        .entry-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.18);
+            border-color: rgba(139, 75, 135, 0.3);
+        }
+
+        .entry-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .cat-badge {
+            background: linear-gradient(135deg, #8B4B87, #D4A574);
+            color: white;
+            padding: 8px 18px;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 14px;
+            box-shadow: 0 4px 12px rgba(139, 75, 135, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cat-badge::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .entry-card:hover .cat-badge::before {
+            left: 100%;
+        }
+
+        .rating-display {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #8B4B87, #D4A574);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(139, 75, 135, 0.3);
+        }
+
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .clear-data-btn {
+            background: #ff4757;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            margin-top: 20px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .clear-data-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 71, 87, 0.3);
+        }
+
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .slider {
+            flex: 1;
+            height: 8px;
+            border-radius: 5px;
+            background: #ddd;
+            outline: none;
+            transition: background 0.3s ease;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            background: #8B4B87;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .slider::-webkit-slider-thumb:hover {
+            transform: scale(1.1);
+        }
+
+        .slider::-moz-range-thumb {
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            background: #8B4B87;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        }
+
+        .slider-value {
+            min-width: 50px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 16px;
+            color: #8B4B87;
+        }
+
+        .sync-card {
+            background: rgba(255, 255, 255, 0.95);
+            border: 2px solid rgba(238, 238, 238, 0.5);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            backdrop-filter: blur(5px);
+        }
+
+        .sync-card h4 {
+            color: #8B4B87;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        .sync-card p {
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .sync-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .export-btn {
+            background: linear-gradient(135deg, #4A7C59, #355E42);
+            color: white;
+        }
+
+        .export-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(74, 124, 89, 0.3);
+        }
+
+        .import-btn {
+            background: linear-gradient(135deg, #D4A574, #B8956A);
+            color: white;
+        }
+
+        .import-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(212, 165, 116, 0.3);
+        }
+
+        .sync-instructions {
+            background: rgba(248, 249, 250, 0.9);
+            border-radius: 15px;
+            padding: 25px;
+            border-left: 4px solid #8B4B87;
+            margin-top: 20px;
+        }
+
+        .sync-instructions h4 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .instruction-steps {
+            margin-bottom: 20px;
+        }
+
+        .step {
+            background: rgba(255, 255, 255, 0.8);
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 8px;
+            border-left: 3px solid #8B4B87;
+        }
+
+        .sync-tips {
+            background: rgba(212, 165, 116, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .sync-tips h5 {
+            color: #8B4B87;
+            margin-bottom: 10px;
+        }
+
+        .sync-tips ul {
+            margin-left: 20px;
+        }
+
+        .sync-tips li {
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .rating-group, .cat-selection {
+                flex-wrap: wrap;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🐱 Cat Food Tracker</h1>
+            <p>Tracking food preferences for T & P</p>
+        </div>
+
+        <!-- Login Screen -->
+        <div id="loginScreen" class="login-screen">
+            <div class="login-box">
+                <h2>🔐 Welcome Back</h2>
+                <p style="color: #666; margin-bottom: 25px; font-size: 0.9em;">Enter your password to track T & P's food preferences</p>
+                <input type="password" id="passwordInput" placeholder="Enter password..." style="margin-bottom: 25px;">
+                <button onclick="checkPassword()" class="submit-btn">
+                    🐾 Enter Cat Paradise
+                </button>
+                <p id="loginError" style="color: #ff4757; margin-top: 15px; display: none; font-weight: 500;">
+                    ❌ Incorrect password - try again!
+                </p>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div id="mainContent" class="main-content">
+            <div class="tabs">
+                <button class="tab active" onclick="showTab('add')">Add Entry</button>
+                <button class="tab" onclick="showTab('view')">View Entries</button>
+                <button class="tab" onclick="showTab('stats')">Statistics</button>
+                <button class="tab" onclick="showTab('sync')">Sync Data</button>
+            </div>
+
+            <!-- Add Entry Tab -->
+            <div id="addTab" class="tab-content active">
+                <div class="form-section">
+                    <h3>🍽️ Record Food Intake</h3>
+                    
+                    <div class="form-group">
+                        <label>Who ate this food?</label>
+                        <div class="cat-selection">
+                            <button type="button" class="cat-btn selected" data-cat="Both cats">🐱🐱 Both cats</button>
+                            <button type="button" class="cat-btn" data-cat="T">🐱 T</button>
+                            <button type="button" class="cat-btn" data-cat="P">🐱 P</button>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Date:</label>
+                        <input type="date" id="date" required>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Brand:</label>
+                            <input type="text" id="brand" placeholder="e.g., Purina, Whiskas" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Flavor:</label>
+                            <input type="text" id="flavor" placeholder="e.g., Chicken, Tuna" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Texture:</label>
+                        <select id="texture" required>
+                            <option value="">Select Texture</option>
+                            <option value="Wet - Pate">Wet - Pate</option>
+                            <option value="Wet - Chunks in Gravy">Wet - Chunks in Gravy</option>
+                            <option value="Wet - Shredded">Wet - Shredded</option>
+                            <option value="Dry - Kibble">Dry - Kibble</option>
+                            <option value="Treats">Treats</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Amount Eaten:</label>
+                        <div class="slider-container">
+                            <input type="range" id="amountEaten" min="0" max="100" value="50" class="slider">
+                            <div class="slider-value">
+                                <span id="amountValue">50</span>%
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Rating (How much did they like it?):</label>
+                        <div class="rating-group">
+                            <button type="button" class="rating-btn" data-rating="1">😾 Hated</button>
+                            <button type="button" class="rating-btn" data-rating="2">😿 Disliked</button>
+                            <button type="button" class="rating-btn" data-rating="3">😐 Neutral</button>
+                            <button type="button" class="rating-btn" data-rating="4">😸 Liked</button>
+                            <button type="button" class="rating-btn" data-rating="5">😻 Loved</button>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Notes (Optional):</label>
+                        <textarea id="notes" placeholder="Any additional observations..." rows="3"></textarea>
+                    </div>
+
+                    <button type="button" onclick="submitEntry()" class="submit-btn">
+                        ✨ Record Food Entry
+                    </button>
+                </div>
+            </div>
+
+            <!-- View Entries Tab -->
+            <div id="viewTab" class="tab-content">
+                <div class="form-section">
+                    <h3>📋 Food History</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Filter by Cat:</label>
+                            <select id="filterCat" onchange="filterEntries()">
+                                <option value="">All Entries</option>
+                                <option value="Both cats">Both cats</option>
+                                <option value="T">T</option>
+                                <option value="P">P</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Sort by:</label>
+                            <select id="sortBy" onchange="filterEntries()">
+                                <option value="date">Date (Newest First)</option>
+                                <option value="rating">Rating (Highest First)</option>
+                                <option value="brand">Brand (A-Z)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div id="entriesContainer" class="entries-grid">
+                    <p style="text-align: center; color: #666; padding: 40px;">No entries yet. Add some food records!</p>
+                </div>
+            </div>
+
+            <!-- Statistics Tab -->
+            <div id="statsTab" class="tab-content">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalEntries">0</div>
+                        <div>Total Entries</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="avgRating">0</div>
+                        <div>Average Rating</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="favoriteBrand">-</div>
+                        <div>Favorite Brand</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="favoriteFlavor">-</div>
+                        <div>Favorite Flavor</div>
+                    </div>
+                </div>
+                <button onclick="clearAllData()" class="clear-data-btn">🗑️ Clear All Data</button>
+            </div>
+
+            <!-- Sync Data Tab -->
+            <div id="syncTab" class="tab-content">
+                <div class="sync-card">
+                    <h4>📊 Export/Import Data</h4>
+                    <p>Keep your cat food tracking data synced across devices</p>
+                    <button onclick="exportData()" class="sync-btn export-btn">📤 Export Data</button>
+                    <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importData()">
+                    <button onclick="document.getElementById('importFile').click()" class="sync-btn import-btn">📥 Import Data</button>
+                </div>
+                
+                <div class="sync-instructions">
+                    <h4>📝 How to Sync Data Between Devices</h4>
+                    <div class="instruction-steps">
+                        <div class="step">
+                            <strong>Step 1:</strong> On your first device, click "Export Data" to download your cat food data as a JSON file.
+                        </div>
+                        <div class="step">
+                            <strong>Step 2:</strong> Transfer the downloaded file to your second device (via email, cloud storage, etc.).
+                        </div>
+                        <div class="step">
+                            <strong>Step 3:</strong> On your second device, click "Import Data" and select the JSON file you exported.
+                        </div>
+                        <div class="step">
+                            <strong>Step 4:</strong> Your data will be merged - any new entries will be added while preserving existing ones.
+                        </div>
+                    </div>
+                    
+                    <div class="sync-tips">
+                        <h5>💡 Pro Tips:</h5>
+                        <ul>
+                            <li>Export your data regularly as a backup</li>
+                            <li>The import process will merge data, not overwrite it</li>
+                            <li>Duplicate entries (same date, cat, brand, flavor) will be automatically detected and skipped</li>
+                            <li>Always export before importing to have a backup of your current data</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Application state
+        let entries = [];
+        let selectedCat = 'Both cats';
+        let selectedRating = null;
+        const correctPassword = 'catfood123'; // Change this to your desired password
+
+        // Password check function
+        function checkPassword() {
+            const inputPassword = document.getElementById('passwordInput').value;
+            const loginError = document.getElementById('loginError');
+            
+            if (inputPassword === correctPassword) {
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('mainContent').style.display = 'block';
+                loadData();
+                initializeForm();
+            } else {
+                loginError.style.display = 'block';
+                document.getElementById('passwordInput').value = '';
+                // Hide error after 3 seconds
+                setTimeout(() => {
+                    loginError.style.display = 'none';
+                }, 3000);
+            }
+        }
+
+        // Allow Enter key to submit password
+        document.getElementById('passwordInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                checkPassword();
+            }
+        });
+
+        // Initialize form with current date and event listeners
+        function initializeForm() {
+            // Set current date
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('date').value = today;
+            
+            // Add event listeners
+            setupEventListeners();
+            updateStats();
+        }
+
+        function setupEventListeners() {
+            // Cat selection buttons
+            document.querySelectorAll('.cat-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('selected'));
+                    this.classList.add('selected');
+                    selectedCat = this.dataset.cat;
+                });
+            });
+
+            // Rating buttons
+            document.querySelectorAll('.rating-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.rating-btn').forEach(b => b.classList.remove('selected'));
+                    this.classList.add('selected');
+                    selectedRating = parseInt(this.dataset.rating);
+                });
+            });
+
+            // Amount slider
+            const slider = document.getElementById('amountEaten');
+            const valueDisplay = document.getElementById('amountValue');
+            slider.addEventListener('input', function() {
+                valueDisplay.textContent = this.value;
+            });
+        }
+
+        // Tab navigation
+        function showTab(tabName) {
+            // Remove active class from all tabs and tab contents
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            // Add active class to selected tab and content
+            event.target.classList.add('active');
+            document.getElementById(tabName + 'Tab').classList.add('active');
+            
+            if (tabName === 'view') {
+                displayEntries();
+            } else if (tabName === 'stats') {
+                updateStats();
+            }
+        }
+
+        // Submit entry
+        function submitEntry() {
+            const date = document.getElementById('date').value;
+            const brand = document.getElementById('brand').value.trim();
+            const flavor = document.getElementById('flavor').value.trim();
+            const texture = document.getElementById('texture').value;
+            const amountEaten = document.getElementById('amountEaten').value;
+            const notes = document.getElementById('notes').value.trim();
+
+            // Validation
+            if (!date || !brand || !flavor || !texture || selectedRating === null) {
+                alert('Please fill in all required fields and select a rating!');
+                return;
+            }
+
+            // Create entry object
+            const entry = {
+                id: Date.now(),
+                date: date,
+                cat: selectedCat,
+                brand: brand,
+                flavor: flavor,
+                texture: texture,
+                amountEaten: parseInt(amountEaten),
+                rating: selectedRating,
+                notes: notes,
+                timestamp: new Date().toISOString()
+            };
+
+            // Add to entries array
+            entries.push(entry);
+            
+            // Save to storage
+            saveData();
+            
+            // Reset form
+            resetForm();
+            
+            // Show success message
+            alert('✅ Food entry recorded successfully!');
+            
+            // Update stats if on stats tab
+            updateStats();
+        }
+
+        function resetForm() {
+            document.getElementById('brand').value = '';
+            document.getElementById('flavor').value = '';
+            document.getElementById('texture').value = '';
+            document.getElementById('amountEaten').value = '50';
+            document.getElementById('amountValue').textContent = '50';
+            document.getElementById('notes').value = '';
+            
+            // Reset selections
+            document.querySelectorAll('.rating-btn').forEach(btn => btn.classList.remove('selected'));
+            selectedRating = null;
+            
+            // Keep cat selection and date as is for convenience
+        }
+
+        // Display entries
+        function displayEntries() {
+            const container = document.getElementById('entriesContainer');
+            
+            if (entries.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #666; padding: 40px;">No entries yet. Add some food records!</p>';
+                return;
+            }
+
+            // Filter and sort entries
+            let filteredEntries = filterAndSortEntries();
+            
+            const entriesHTML = filteredEntries.map(entry => {
+                const ratingEmojis = ['', '😾', '😿', '😐', '😸', '😻'];
+                const ratingTexts = ['', 'Hated', 'Disliked', 'Neutral', 'Liked', 'Loved'];
+                
+                return `
+                    <div class="entry-card">
+                        <div class="entry-header">
+                            <div class="cat-badge">${entry.cat}</div>
+                            <div class="rating-display">${ratingEmojis[entry.rating]} ${ratingTexts[entry.rating]}</div>
+                        </div>
+                        <div style="margin-bottom: 10px;">
+                            <strong>${entry.brand} - ${entry.flavor}</strong>
+                        </div>
+                        <div style="color: #666; margin-bottom: 10px;">
+                            📅 ${new Date(entry.date).toLocaleDateString()} • 
+                            🍽️ ${entry.texture} • 
+                            📊 ${entry.amountEaten}% eaten
+                        </div>
+                        ${entry.notes ? `<div style="background: rgba(139, 75, 135, 0.1); padding: 10px; border-radius: 8px; margin-top: 10px;"><em>"${entry.notes}"</em></div>` : ''}
+                    </div>
+                `;
+            }).join('');
+            
+            container.innerHTML = entriesHTML;
+        }
+
+        function filterAndSortEntries() {
+            let filtered = [...entries];
+            
+            // Filter by cat
+            const catFilter = document.getElementById('filterCat').value;
+            if (catFilter) {
+                filtered = filtered.filter(entry => entry.cat === catFilter);
+            }
+            
+            // Sort entries
+            const sortBy = document.getElementById('sortBy').value;
+            filtered.sort((a, b) => {
+                switch(sortBy) {
+                    case 'date':
+                        return new Date(b.date) - new Date(a.date);
+                    case 'rating':
+                        return b.rating - a.rating;
+                    case 'brand':
+                        return a.brand.localeCompare(b.brand);
+                    default:
+                        return new Date(b.date) - new Date(a.date);
+                }
+            });
+            
+            return filtered;
+        }
+
+        function filterEntries() {
+            displayEntries();
+        }
+
+        // Update statistics
+        function updateStats() {
+            if (entries.length === 0) {
+                document.getElementById('totalEntries').textContent = '0';
+                document.getElementById('avgRating').textContent = '0';
+                document.getElementById('favoriteBrand').textContent = '-';
+                document.getElementById('favoriteFlavor').textContent = '-';
+                return;
+            }
+
+            // Total entries
+            document.getElementById('totalEntries').textContent = entries.length;
+            
+            // Average rating
+            const avgRating = (entries.reduce((sum, entry) => sum + entry.rating, 0) / entries.length).toFixed(1);
+            document.getElementById('avgRating').textContent = avgRating;
+            
+            // Favorite brand
+            const brandCounts = {};
+            entries.forEach(entry => {
+                brandCounts[entry.brand] = (brandCounts[entry.brand] || 0) + 1;
+            });
+            const favBrand = Object.keys(brandCounts).reduce((a, b) => brandCounts[a] > brandCounts[b] ? a : b, '');
+            document.getElementById('favoriteBrand').textContent = favBrand || '-';
+            
+            // Favorite flavor
+            const flavorCounts = {};
+            entries.forEach(entry => {
+                flavorCounts[entry.flavor] = (flavorCounts[entry.flavor] || 0) + 1;
+            });
+            const favFlavor = Object.keys(flavorCounts).reduce((a, b) => flavorCounts[a] > flavorCounts[b] ? a : b, '');
+            document.getElementById('favoriteFlavor').textContent = favFlavor || '-';
+        }
+
+        // Data persistence
+        function saveData() {
+            const data = JSON.stringify(entries);
+            // Store in memory for this session (no localStorage in artifacts)
+            window.catFoodData = data;
+        }
+
+        function loadData() {
+            try {
+                const data = window.catFoodData;
+                if (data) {
+                    entries = JSON.parse(data);
+                }
+            } catch (e) {
+                console.error('Error loading data:', e);
+                entries = [];
+            }
+        }
+
+        // Export data
+        function exportData() {
+            const dataStr = JSON.stringify(entries, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `cat_food_data_${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            
+            alert('✅ Data exported successfully!');
+        }
+
+        // Import data
+        function importData() {
+            const fileInput = document.getElementById('importFile');
+            const file = fileInput.files[0];
+            
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const importedData = JSON.parse(e.target.result);
+                    
+                    if (!Array.isArray(importedData)) {
+                        throw new Error('Invalid data format');
+                    }
+                    
+                    let newEntriesCount = 0;
+                    importedData.forEach(importedEntry => {
+                        // Check for duplicates (same date, cat, brand, flavor)
+                        const isDuplicate = entries.some(existing => 
+                            existing.date === importedEntry.date &&
+                            existing.cat === importedEntry.cat &&
+                            existing.brand === importedEntry.brand &&
+                            existing.flavor === importedEntry.flavor
+                        );
+                        
+                        if (!isDuplicate) {
+                            // Assign new ID to avoid conflicts
+                            importedEntry.id = Date.now() + Math.random();
+                            entries.push(importedEntry);
+                            newEntriesCount++;
+                        }
+                    });
+                    
+                    saveData();
+                    updateStats();
+                    alert(`✅ Import successful! Added ${newEntriesCount} new entries. Skipped ${importedData.length - newEntriesCount} duplicates.`);
+                    
+                } catch (error) {
+                    console.error('Import error:', error);
+                    alert('❌ Error importing data. Please check the file format.');
+                }
+                
+                // Clear the file input
+                fileInput.value = '';
+            };
+            
+            reader.readAsText(file);
+        }
+
+        // Clear all data
+        function clearAllData() {
+            if (confirm('⚠️ Are you sure you want to clear all data? This cannot be undone!')) {
+                if (confirm('🚨 This will permanently delete all food entries. Are you absolutely sure?')) {
+                    entries = [];
+                    saveData();
+                    updateStats();
+                    displayEntries();
+                    alert('🗑️ All data has been cleared.');
+                }
+            }
+        }
+
+        // Initialize the application
+        window.addEventListener('load', function() {
+            // Focus on password input
+            document.getElementById('passwordInput').focus();
+        });
+    </script>
+</body>
+</html>
+                    
